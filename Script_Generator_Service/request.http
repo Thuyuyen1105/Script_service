@@ -1,0 +1,109 @@
+### Create new script
+POST http://localhost:3005/api/scripts/generate
+Content-Type: application/json
+Authorization: Bearer IzaSyAA55k-fFI9_rvbj2kTzkmViBh4m--dHL0
+
+{
+  "userId": "6616e1b2ac9fb8d3bfc8a4c1",
+  "topic": "test script",
+  "audience": "teenager",
+  "style": "storytelling",
+  "language": "en",
+  "sources": [
+    {
+      "title": "test script1",
+      "content": "Cây chuối là một hình ảnh quen thuộc ở khắp các vùng quê Việt Nam. Không chỉ để lấy quả, chuối còn là loại cây “đa năng” hiếm có. Thân chuối dùng gói bánh, lá chuối gói xôi, còn củ chuối có thể nấu ăn cho heo gà. Trái chuối thì khỏi nói – ngọt, dễ ăn, lại giàu năng lượng. Thú vị hơn, cây chuối chỉ ra trái đúng một lần rồi chết. Nhưng đừng lo, nó đã để lại những cây con sẵn sàng mọc lên tiếp nối."
+    },
+    {
+      "title": "test script2",
+      "content": "Bạn có nhớ hình ảnh bụi chuối sau vườn nhà bà không? Cây chuối mọc thẳng, xanh mát, và luôn cho ta cảm giác bình yên. Không chỉ có trái ngon, cây chuối còn là người bạn thầm lặng trong bữa ăn gia đình – từ món bánh chưng gói bằng lá, đến miếng chuối khô ngọt lịm. Dù sống ngắn ngủi, mỗi cây chuối luôn để lại mầm non. Như cách thiên nhiên dạy ta về sự tiếp nối và sẻ chia."
+    }
+  ]
+}
+
+### Get script by ID (Success case)
+GET http://localhost:3005/api/scripts/6814b7134cb969301471ba41
+
+### Get script by userID
+GET http://localhost:3005/api/scripts/user/6616e1b2ac9fb8d3bfc8a4c1
+
+
+### Edit script
+PUT http://localhost:3005/api/scripts/67ffd57c96caa27cc345215b
+Content-Type: application/json
+
+{
+  "script": "Sau đây là phiên bản chỉnh sửa tay của tôi...",
+}
+
+### Delete script
+DELETE http://localhost:3005/api/scripts/67ffce4397523f4684920741
+Content-Type: application/json
+
+### Finalize script
+POST http://localhost:3005/api/scripts/67ffce4397523f4684920741/finalize
+
+
+### Split script
+POST http://localhost:3005/api/scripts/6814b7134cb969301471ba41/split
+Content-Type: application/json
+
+{
+  "language":"vi"
+}
+
+### Get split script by ID
+GET http://localhost:3005/api/scripts/6814b7134cb969301471ba41/split
+
+### Create new script
+POST http://localhost:3005/api/scripts/generate
+Content-Type: application/json
+Authorization: Bearer IzaSyAA55k-fFI9_rvbj2kTzkmViBh4m--dHL0
+
+
+{  
+  "userId": "6616e1b2ac9fb8d3bfc8a4c1",
+  "topic": "Toán học và Tiếng Anh",
+  "audience": "teenager",
+  "style": "storytelling",
+  "language": "vi",
+  "sources": [
+    {
+      "title": "Toán học",
+      "content": "Toán học hay gọi tắt là toán (tiếng Anh: Mathematics hoặc viết tắt là Math) là một ngành nghiên cứu trừu tượng về những chủ đề như lượng (các con số), cấu trúc (tập hợp, tô pô), không gian (hình học, hệ toạ độ, vector), khả năng (xác suất, biến ngẫu nhiên) và sự thay đổi (hàm số, giới hạn, đạo hàm, vi phân, tích phân). Các nhà toán học và triết học có nhiều quan điểm khác nhau về định nghĩa và phạm vi của toán học. Các nhà toán học tìm kiếm các mô thức và sử dụng chúng để tạo ra những giả thuyết mới. Họ lý giải tính đúng đắn hay sai lầm của các giả thuyết bằng các chứng minh toán học. Khi những cấu trúc toán học là mô hình tốt cho hiện thực, lúc đó suy luận toán học có thể cung cấp sự hiểu biết sâu sắc hay những tiên đoán về tự nhiên. Thông qua việc sử dụng những phương pháp trừu tượng và lôgic, toán học đã phát triển từ việc đếm, tính toán, đo lường đến việc nghiên cứu có hệ thống những hình dạng và chuyển động của các đối tượng vật lý. Con người đã ứng dụng toán học trong đời sống từ xa xưa. Việc tìm lời giải cho những bài toán có thể mất hàng năm, hay thậm chí hàng thế kỷ. Những lập luận chặt chẽ xuất hiện trước tiên trong nền toán học Hy Lạp cổ đại, đáng chú ý nhất là trong tác phẩm Cơ sở của Euclid. Kể từ những công trình tiên phong của Giuseppe Peano (1858–1932), David Hilbert (1862–1943), và của những nhà toán học khác trong thế kỷ 19 về các hệ thống tiên đề, nghiên cứu toán học trở thành việc thiết lập chân lý thông qua suy luận logic chặt chẽ từ những tiên đề và định nghĩa thích hợp. Toán học phát triển tương đối chậm cho tới thời Phục hưng, khi sự tương tác giữa những phát minh toán học với những phát kiến khoa học mới đã dẫn đến sự gia tăng nhanh chóng những phát minh toán học vẫn tiếp tục cho đến ngày nay. Toán học được sử dụng trên khắp thế giới như một công cụ thiết yếu trong nhiều lĩnh vực, bao gồm khoa học, kỹ thuật, y học, và tài chính. Toán học ứng dụng, một nhánh toán học liên quan đến việc ứng dụng kiến thức toán học vào những lĩnh vực khác, thúc đẩy và sử dụng những phát minh toán học mới, từ đó đã dẫn đến việc phát triển nên những ngành toán hoàn toàn mới, chẳng hạn như thống kê và lý thuyết trò chơi. Các nhà toán học cũng dành thời gian cho toán học thuần túy, tức là đào rất sâu vào các lý thuyết toán học. Không có biên giới rõ ràng giữa toán học thuần túy và toán học ứng dụng, và những ứng dụng thực tiễn thường được khám phá từ những gì ban đầu được xem là toán học thuần túy. Lịch sử Từ 'mathematics' trong tiếng Anh bắt nguồn từ μάθημα (máthēma) trong tiếng Hy Lạp cổ, có nghĩa là 'thứ học được', 'những gì người ta cần biết,' và như vậy cũng có nghĩa là 'học' và 'khoa học'; còn trong tiếng Hy Lạp hiện đại thì nó chỉ có nghĩa là 'bài học.' "
+    },
+    {
+      "title": "Tiếng Anh",
+      "content": "Tiếng Anh hay Anh ngữ (English) là một ngôn ngữ Giécmanh Tây thuộc ngữ hệ Ấn-Âu. Dạng thức cổ nhất của ngôn ngữ này được nói bởi những cư dân trên mảnh đất Anh thời sơ kỳ trung cổ. Tên bản ngữ của thứ tiếng này bắt nguồn từ tộc danh của một trong những bộ lạc Giécmanh di cư sang đảo Anh trước kia, gọi là tộc Angle. Xét về phả hệ ngôn ngữ học, tiếng Anh có mối quan hệ gần gũi với tiếng Frisia và tiếng Saxon Hạ; tuy vậy qua hàng ngàn năm lịch sử, vốn từ tiếng Anh đã chịu ảnh hưởng rất lớn từ các phương ngữ cổ của tiếng Pháp (khoảng 29% từ vựng tiếng Anh hiện đại) và tiếng Latinh (cũng khoảng 29%), thêm nữa là các ảnh hưởng sâu sắc của tiếng Bắc Âu cổ (một ngôn ngữ Giécmanh Bắc) lên ngữ pháp và từ vựng cốt lõi của nó. Các dạng tiếng Anh thuở sớm, gọi chung là tiếng Anh cổ, phát sinh từ các phương ngữ cổ xưa thuộc nhóm ngôn ngữ Giécmanh Biển Bắc. Những phương ngữ ấy vốn là tiếng mẹ đẻ của người Anglo-Saxon di cư sang Đảo Anh vào thế kỷ thứ 5, rồi tiếp tục biến đổi suốt thế kỷ thứ 8 và thứ 9 do tiếp xúc dai dẳng với tiếng Bắc Âu cổ của di dân Viking. Giai đoạn tiếng Anh trung đại bắt đầu vào cuối thế kỷ 11, ngay sau cuộc xâm lược Anh của người Norman, với những ảnh hưởng đáng kể đến từ các phương ngữ Pháp cổ (đặc biệt là tiếng Norman cổ) và tiếng Latinh suốt khoảng 300 năm ròng. Đến cuối thế kỷ 15, tiếng Anh bước vào giai đoạn cận đại sau khi trải qua quá trình biến đổi nguyên âm quy mô lớn và xu thế vay mượn từ ngữ tiếng Hy-La thời Phục hưng, đồng thời với sự ra đời của máy in ép tại Luân Đôn. Thông qua đó mà văn học Anh ngữ bấy giờ đã đạt đến đỉnh cao, nổi bật với các chứng tích như bản dịch tiếng Anh của Kinh Thánh đời vua James I và các vở kịch kinh điển của đại văn hào William Shakespeare.Ngữ pháp tiếng Anh hiện đại là kết quả của quá trình biến đổi dần dần từ kiểu dependant-marking điển hình của hệ Ấn-Âu, đặc trưng với sự biến đổi hình thái phong phú và trật tự từ tương đối tự do, sang kiểu phân tích, đặc trưng với hình thái ít biến đổi cùng trật tự chủ-động-tân thiếu linh động. Tiếng Anh hiện đại dựa phần lớn vào trợ động từ và trật tự từ để biểu đạt các thì (tense), thức (mood) và thể (aspect) phức tạp, cũng như các cấu trúc bị động, nghi vấn và một số dạng phủ định.Tiếng Anh hiện đại lan rộng khắp thế giới kể từ thế kỷ 17 nhờ tầm ảnh hưởng toàn cầu của Đế quốc Anh và Hoa Kỳ. Thông qua các loại hình in ấn và phương tiện truyền thông đại chúng của những quốc gia này, vị thế tiếng Anh đã được nâng lên hàng đầu trong diễn ngôn quốc tế, giúp nó trở thành lingua franca tại nhiều khu vực trên thế giới và trong nhiều bối cảnh chuyên môn như khoa học, hàng hải và luật pháp. Tiếng Anh là ngôn ngữ có số lượng người nói đông đảo nhất trên thế giới, và có số lượng người nói bản ngữ nhiều thứ ba trên thế giới, chỉ sau tiếng Trung Quốc chuẩn và tiếng Tây Ban Nha. Tiếng Anh là ngoại ngữ được nhiều người học nhất và là ngôn ngữ chính thức hoặc đồng chính thức của 59 quốc gia trên thế giới. Hiện nay số người biết nói tiếng Anh như một ngoại ngữ đã áp đảo hơn số người nói tiếng Anh bản ngữ. Tính đến năm 2005, lượng người nói tiếng Anh đã cán mốc xấp xỉ 2 tỷ. Tiếng Anh là bản ngữ đa số tại Vương quốc Anh, Hoa Kỳ, Canada, Úc, New Zealand (xem vùng văn hóa tiếng Anh) và Cộng hòa Ireland. Nó được sử dụng phổ biến ở một số vùng thuộc vùng Caribe, Châu Phi, Nam Á, Đông Nam Á, và Châu Đại Dương. Tiếng Anh là ngôn ngữ đồng chính thức của Liên Hợp Quốc, Liên minh châu Âu, cùng nhiều tổ chức quốc tế và khu vực. Ngoài ra nó cũng là ngôn ngữ Giécmanh được sử dụng rộng rãi nhất, với lượng người nói chiếm ít nhất 70% tổng số người nói các ngôn ngữ thuộc nhánh Ấn-Âu này. Phân loại Tiếng Anh là một ngôn ngữ Ấn–Âu, cụ thể hơn là ngôn ngữ thuộc nhánh Tây của ngữ tộc Giécmanh. Dạng cổ của tiếng Anh –Tiếng Anh cổ – bắt nguồn từ dãy phương ngữ được nói bởi các dân tộc Giécmanh sinh sống dọc bờ Biển Bắc xứ Frisia (nay thuộc Hà Lan). Các phương ngữ Giécmanh ấy đã phát sinh nhóm ngôn ngữ Anglic trên Đảo Anh, cũng như tiếng Frisia và tiếng Đức Hạ/Saxon Hạ trên lục địa châu Âu. Tiếng Frisia do vậy có quan hệ rất gần với tiếng Anh, và cũng chính vì vậy nên giới ngôn ngữ học mới gộp chúng vào nhóm Anh-Frisia. Ngoài ra, tiếng Đức Hạ/Saxon Hạ cũng có quan hệ gần gũi với tiếng Anh, song phân loại gộp ba thứ tiếng trên thành một nhóm duy nhất (gọi là nhóm Giécmanh Biển Bắc) hiện còn bị nhiều người phản bác. Tiếng Anh cổ đã dần diễn tiến thành tiếng Anh trung đại, rồi tiếp tục phát triển thành tiếng Anh đương đại. Đồng thời, các phương ngữ tiếng Anh cổ và tiếng Anh trung đại cũng đã biến đổi thành các ngôn ngữ mới; chẳng hạn tiếng Scotland, cũng như các ngôn ngữ đã thất truyền như tiếng Fingal và tiếng Yola ở Ireland. Tiếng Anh – giống như tiếng Iceland và tiếng Faroe, vốn đều là các ngôn ngữ được sử dụng trên các đảo cô lập và do vậy chúng được cách ly khỏi các ảnh hưởng ngôn ngữ trên đất liền – đã phân kỳ đáng kể khỏi các nhánh chị em. Không tồn tại sự thông hiểu lẫn nhau giữa tiếng Anh với bất kỳ thứ tiếng Giécmanh lục địa nào, sở dĩ bởi sự khác biệt từ vựng, cú pháp và âm vị. Dù vậy khi xem xét kỹ hơn, tiếng Hà Lan và tiếng Frisia vẫn lưu giữ nhiều nét tương đồng với tiếng Anh, đặc biệt là nếu ta đem so sánh với các giai đoạn cổ hơn của tiếng Anh. Tuy nhiên, không giống tiếng Iceland và tiếng Faroe vốn bị cô lập ở mức độ cao hơn, tiếng Anh vẫn chịu ảnh hưởng từ một số ngôn ngữ đại lục được du nhập vào đảo Anh kèm theo các cuộc xâm lược và di dân trong quá khứ (đặc biệt là tiếng Pháp Norman và tiếng Bắc Âu cổ). Những sự biến ấy đã hằn in vào vốn từ và ngữ pháp tiếng Anh những dấu ấn rất sâu sắc, cũng là ngọn nguồn của các nét tương đồng giữa tiếng Anh hiện đại với một số ngôn ngữ ngoại ngành – song chúng hoàn toàn không có tính thông hiểu lẫn nhau. Dựa vào đó, một số học giả đã đề xuất giả thuyết tiếng Anh trung đại lai căng (Middle English creole hypothesis), theo đó thì họ cho rằng tiếng Anh thực chất là một ngôn ngữ pha trộn (mixed language) hoặc một ngôn ngữ lai căng (creole language) chứ không thuần Giécmanh. Tuy đúng là các định đề của giả thuyết này được thừa nhận rộng rãi, song phần lớn giới chuyên gia ngày nay không hề coi tiếng Anh là ngôn ngữ pha trộn.Tiếng Anh được phân loại là một ngôn ngữ Giécmanh vì nó có nhiều điểm đổi mới giống các ngôn ngữ như tiếng Hà Lan, tiếng Đức và tiếng Thụy Điển. Điều này chứng tỏ các ngôn ngữ ấy chắc hẳn đã phát sinh từ cùng một ngôn ngữ tổ tiên mà giới ngôn ngữ học gọi là tiếng Giécmanh nguyên thủy. Một số điểm chung đó bao gồm: sự phân biệt giữa lớp động từ mạnh và yếu, sự vận dụng động từ khuyết, cũng như tuân theo các luật biến đổi phụ âm từ tiếng Ấn-Âu nguyên thủy là luật Grimm và luật Verner. Tiếng Anh được nhóm với tiếng Frisia bởi lẽ chúng chia sẻ nhiều điểm độc đáo, không tồn tại ở nhánh nào khác, chẳng hạn sự ngạc cứng hóa các âm ngạc mềm của tiếng Giécmanh nguyên thủy."
+    }
+  ]
+  }
+
+### Get script by ID (Success case)
+GET http://localhost:3005/api/scripts/6801267cf6b475cc442d0069
+
+### Get script by userID
+GET http://localhost:3005/api/scripts/user/6616e1b2ac9fb8d3bfc8a4c1
+
+
+### Edit script
+PUT http://localhost:3005/api/scripts/67ffd57c96caa27cc345215b
+Content-Type: application/json
+
+{
+  "script": "Sau đây là phiên bản chỉnh sửa tay của tôi...",
+}
+
+### Delete script
+DELETE http://localhost:3005/api/scripts/67ffce4397523f4684920741
+Content-Type: application/json
+
+### Finalize script
+POST http://localhost:3005/api/scripts/67ffce4397523f4684920741/finalize
+
+
+### Split script    
+POST http://localhost:3005/api/scripts/6814d1b6e61f32fe8dbe9e38/split
+
+### Get split script by ID
+GET http://localhost:3005/api/scripts/6814d1b6e61f32fe8dbe9e38/split

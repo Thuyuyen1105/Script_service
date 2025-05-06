@@ -6,11 +6,8 @@ const scriptRoutes = require('./src/routes/scriptRoutes');
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-frontend-domain.com'],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
-}))
+app.use(cors()); // Cho phép tất cả origin (chỉ dùng để debug!)
+
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))

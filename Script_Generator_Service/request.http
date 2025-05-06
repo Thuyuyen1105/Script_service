@@ -8,7 +8,7 @@ Content-Type: application/json
   "audience": "teenager",
   "style": "storytelling",
   "language": "en",
-  "length":"short",
+  "length":"long",
   "sources": [
     {
       "title": "test script1",
@@ -49,7 +49,7 @@ POST http://localhost:3005/api/scripts/67ffce4397523f4684920741/finalize
 
 
 ### Split script
-POST http://localhost:3005/api/scripts/6814b7134cb969301471ba41/split
+POST http://localhost:3005/api/scripts/6819a35d5914fa83a966fb85/split
 Content-Type: application/json
 
 {
@@ -57,7 +57,7 @@ Content-Type: application/json
 }
 
 ### Get split script by ID
-GET http://localhost:3005/api/scripts/6814b7134cb969301471ba41/split
+GET http://localhost:3005/api/scripts/6819a35d5914fa83a966fb85/split
 
 ### Create new script
 POST http://localhost:3005/api/scripts/generate
@@ -107,7 +107,7 @@ POST http://localhost:3005/api/scripts/67ffce4397523f4684920741/finalize
 
 
 ### Split script    
-POST http://localhost:3005/api/scripts/6814d1b6e61f32fe8dbe9e38/split
+POST http://localhost:3005/api/scripts/6801267cf6b475cc442d0069/split
 
 ### Get split script by ID
-GET http://localhost:3005/api/scripts/6814d1b6e61f32fe8dbe9e38/split
+GET http://localhost:3005/api/scripts/6801267cf6b475cc442d0069/split

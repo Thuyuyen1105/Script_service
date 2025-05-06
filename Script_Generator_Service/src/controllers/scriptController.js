@@ -4,17 +4,23 @@ const { generateScript, splitScript } = require('../services/geminiService');
 
 exports.createScript = async (req, res) => {
   try {
-    const { userId, topic, audience, style, sources, language } = req.body;
+    const { userId, topic, audience, style, sources, language, length } = req.body;
 
     // Input validation
-    if (!userId || !topic || !audience || !style || !sources) {
+    if (!userId || !topic || !audience || !style || !sources || !length) {
       return res.status(400).json({ 
-        error: 'Missing required fields: userId, topic, audience, style, or sources' 
+        error: 'Missing required fields: userId, topic, audience, style, sources, or length' 
       });
     }
 
+    // Validate length
+    const validLengths = ['veryshort', 'short', 'medium', 'long'];
+    if (!validLengths.includes(length)) {
+      return res.status(400).json({ error: 'Invalid length value. Must be one of: veryshort, short, medium, long' });
+    }
+
     // Generate script using Gemini service
-    const generatedContent = await generateScript(topic, audience, style, sources, language);
+    const generatedContent = await generateScript(topic, audience, style, sources, language, length);
 
     // Create script record in database using the model method
     const script = await Script.createScript({
@@ -37,7 +43,7 @@ exports.createScript = async (req, res) => {
     
     // Create a failed script record
     try {
-      const { userId, topic, audience, style, sources, language } = req.body;
+      const { userId, topic, audience, style, sources, language, length } = req.body;
       const script = await Script.createScript({
         userId,
         topic,

@@ -1,7 +1,6 @@
 ### Create new script
 POST http://localhost:3005/api/scripts/generate
 Content-Type: application/json
-Authorization: Bearer IzaSyAA55k-fFI9_rvbj2kTzkmViBh4m--dHL0
 
 {
   "userId": "6616e1b2ac9fb8d3bfc8a4c1",
@@ -9,6 +8,7 @@ Authorization: Bearer IzaSyAA55k-fFI9_rvbj2kTzkmViBh4m--dHL0
   "audience": "teenager",
   "style": "storytelling",
   "language": "en",
+  "length":"short",
   "sources": [
     {
       "title": "test script1",

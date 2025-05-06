@@ -15,10 +15,10 @@ const model = genAI.getGenerativeModel({
   },
 });
 
-async function generateScript(topic, audience, style, sources, language) {
+async function generateScript(topic, audience, style, sources, language, length) {
   try {
     // Construct the prompt based on the inputs
-    const prompt = constructPrompt(topic, audience, style, sources, language);
+    const prompt = constructPrompt(topic, audience, style, sources, language, length);
     
     // Generate content using Gemini
     const result = await model.generateContent(prompt);
@@ -38,7 +38,7 @@ async function generateScript(topic, audience, style, sources, language) {
   }
 }
 
-function constructPrompt(topic, audience, style, sources, language) {
+function constructPrompt(topic, audience, style, sources, language, length) {
   // Combine sources into a coherent text
   const sourcesText = sources.map(source => 
     `From "${source.title}": ${source.content}`
@@ -53,6 +53,23 @@ function constructPrompt(topic, audience, style, sources, language) {
   } else {
     lang = "English";
   }
+  let scriptLength;
+  switch (length) {
+    case 'veryshort':
+      scriptLength = 100; // Example: 100 words
+      break;
+    case 'short':
+      scriptLength = 150; // Example: 300 words
+      break;
+    case 'medium':
+      scriptLength = 250; // Example: 600 words
+      break;
+    case 'long':
+      scriptLength =400 ; // Example: 1000 words
+      break;
+    default:
+      throw new Error('Invalid length value');
+  }
 
   return `
 Create a script about "${topic}" with the following requirements:
@@ -65,7 +82,7 @@ Based on these scientific sources:
 ${sourcesText}
 
 Instructions:
-- Keep the script under 200 words.
+- Keep the script about ${scriptLength} words.
 - Make it sound natural and smooth for a text-to-speech system.
 - Use simple sentence structures that are easy to follow when spoken.
 - Avoid special characters or formatting (e.g., bullet points, emojis, etc).

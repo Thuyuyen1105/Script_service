@@ -10,7 +10,6 @@ const connectDB = async () => {
 
     const options = {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
       dbName: process.env.DB_NAME || 'Script_Generator', // Tên database
     };
 

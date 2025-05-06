@@ -24,6 +24,10 @@ Authorization: Bearer IzaSyAA55k-fFI9_rvbj2kTzkmViBh4m--dHL0
 ### Get script by ID (Success case)
 GET http://localhost:3005/api/scripts/6814b7134cb969301471ba41
 
+###get script by ID 
+GET http://scriptservice-production.up.railway.app/api/scripts/6814b7134cb969301471ba41
+
+
 ### Get script by userID
 GET http://localhost:3005/api/scripts/user/6616e1b2ac9fb8d3bfc8a4c1
 

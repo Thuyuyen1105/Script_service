@@ -12,7 +12,7 @@ connectDB();
 app.use(express.json());
 
 // Routes
-app.use('/api/script', scriptRoutes);
+app.use('/api/scripts', scriptRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -174,6 +174,7 @@ exports.updateScript = async (req, res) => {
 
     // Send requests to image generation queue
     const sendPromises = imageRequests.map(request => 
+
       sendImageGenerationRequest(request).catch(error => {
         console.error(`Failed to send image request for segment ${request.order}:`, error);
         return null; // Continue with other requests even if one fails

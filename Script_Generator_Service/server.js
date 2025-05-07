@@ -6,6 +6,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const scriptRoutes = require('./src/routes/scriptRoutes');
 const { consumeMessages } = require('./src/services/rabbitService');
+const { setIO, addConnection, removeConnection } = require('./src/app');
 
 // Initialize Express app
 const app = express();
@@ -19,14 +20,8 @@ const io = new Server(httpServer, {
   }
 });
 
-// Store active connections
-const activeConnections = new Map();
-
-// Export io and activeConnections for use in other modules
-module.exports = {
-  io,
-  activeConnections
-};
+// Set WebSocket IO instance
+setIO(io);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -35,7 +30,7 @@ io.on('connection', (socket) => {
   // Handle client registration with jobId
   socket.on('register', (jobId) => {
     console.log(`Client ${socket.id} registered for job ${jobId}`);
-    activeConnections.set(jobId, socket.id);
+    addConnection(jobId, socket.id);
   });
 
   // Handle disconnection
@@ -44,7 +39,7 @@ io.on('connection', (socket) => {
     // Remove from active connections
     for (const [jobId, socketId] of activeConnections.entries()) {
       if (socketId === socket.id) {
-        activeConnections.delete(jobId);
+        removeConnection(jobId);
         break;
       }
     }

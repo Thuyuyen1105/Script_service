@@ -6,7 +6,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const scriptRoutes = require('./src/routes/scriptRoutes');
 const { consumeMessages } = require('./src/services/rabbitService');
-const { setIO, addConnection, removeConnection } = require('./src/app');
+const { setIO, addConnection, removeConnection, getActiveConnections } = require('./src/app');
 
 // Initialize Express app
 const app = express();
@@ -37,6 +37,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     // Remove from active connections
+    const activeConnections = getActiveConnections();
     for (const [jobId, socketId] of activeConnections.entries()) {
       if (socketId === socket.id) {
         removeConnection(jobId);

@@ -3,6 +3,9 @@ const router = express.Router();
 const scriptController = require('../controllers/scriptController');
 const splitScriptController = require('../controllers/splitScriptController');
 
+// Get script generation result by job ID
+router.get('/result/:jobId', scriptController.getScriptResult);
+
 // Split script and generate image prompts
 router.post('/:scriptId/split', scriptController.splitScriptById);
 

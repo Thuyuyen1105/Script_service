@@ -18,7 +18,7 @@ const ScriptSchema = new Schema({
   },
   style: {
     type: String,
-    enum: ['storytelling', 'educational', 'casual', 'humorous'],
+    enum: ['storytelling', 'educational', 'casual', 'funny'],
     required: true
   },
   language: {

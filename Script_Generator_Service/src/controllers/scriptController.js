@@ -2,12 +2,29 @@ const Script = require('../models/Script');
 const SplitScript = require('../models/SplitScript');
 const { generateScript, splitScript } = require('../services/geminiService');
 
+
+
 exports.createScript = async (req, res) => {
+  console.log('=== Script Controller: createScript called ===');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  
   try {
     const { userId, topic, audience, style, sources, language, length } = req.body;
+    console.log('Extracted parameters:', { userId, topic, audience, style, language, length, sourcesCount: sources?.length });
 
     // Input validation
     if (!userId || !topic || !audience || !style || !sources || !length) {
+      console.error('Validation Error:', { 
+        missingFields: {
+          userId: !userId,
+          topic: !topic,
+          audience: !audience,
+          style: !style,
+          sources: !sources,
+          length: !length
+        },
+        receivedData: req.body
+      });
       return res.status(400).json({ 
         error: 'Missing required fields: userId, topic, audience, style, sources, or length' 
       });
@@ -16,13 +33,20 @@ exports.createScript = async (req, res) => {
     // Validate length
     const validLengths = ['veryshort', 'short', 'medium', 'long'];
     if (!validLengths.includes(length)) {
+      console.error('Invalid Length Error:', { 
+        receivedLength: length,
+        validLengths 
+      });
       return res.status(400).json({ error: 'Invalid length value. Must be one of: veryshort, short, medium, long' });
     }
 
     // Generate script using Gemini service
+    console.log('Calling generateScript service...');
     const generatedContent = await generateScript(topic, audience, style, sources, language, length);
+    console.log('Script generated successfully');
 
     // Create script record in database using the model method
+    console.log('Creating script record in database...');
     const script = await Script.createScript({
       userId,
       topic,
@@ -31,6 +55,7 @@ exports.createScript = async (req, res) => {
       outputScript: generatedContent.script,
       status: generatedContent.status
     });
+    console.log('Script record created:', { scriptId: script._id, status: script.status });
 
     res.status(201).json({
       scriptId: script._id,
@@ -39,29 +64,54 @@ exports.createScript = async (req, res) => {
       status: script.status
     });
   } catch (err) {
-    console.error(err);
+    console.error('Script Generation Error:', {
+      error: err.message,
+      stack: err.stack,
+      requestBody: req.body
+    });
     
-    // Create a failed script record
+    // Create a failed script record with detailed error message
     try {
       const { userId, topic, audience, style, sources, language, length } = req.body;
+      const errorMessage = err.message || 'Unknown error occurred';
+      console.log('Creating failed script record...');
       const script = await Script.createScript({
         userId,
         topic,
         targetAudience: audience,
         style,
-        outputScript: "Script generation failed",
-        status: "failed"
+        outputScript: `Script generation failed: ${errorMessage}`,
+        status: "failed",
+        errorDetails: {
+          message: errorMessage,
+          timestamp: new Date().toISOString()
+        }
       });
       
+      console.log('Failed script record created:', { 
+        scriptId: script._id, 
+        status: script.status,
+        error: errorMessage 
+      });
+
       res.status(201).json({
         scriptId: script._id,
         topic: script.topic,
         script: script.outputScript,
-        status: script.status
+        status: script.status,
+        error: errorMessage
       });
     } catch (createErr) {
-      console.error('Error creating failed script:', createErr);
-      res.status(500).json({ error: 'Script generation failed' });
+      console.error('Error creating failed script record:', {
+        error: createErr.message,
+        stack: createErr.stack,
+        originalError: err.message
+      });
+      res.status(500).json({ 
+        error: 'Script generation failed',
+        details: err.message,
+        timestamp: new Date().toISOString()
+      });
     }
   }
 };
@@ -233,6 +283,43 @@ exports.splitScriptById = async (req, res) => {
   } catch (err) {
     console.error("Error splitting script:", err);
     res.status(500).json({ error: "Failed to split script and generate image prompts" });
+  }
+};
+
+exports.getScriptResult = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    
+    if (!jobId) {
+      return res.status(400).json({ error: 'Job ID is required' });
+    }
+
+    // Get the script from database using jobId
+    const script = await Script.findOne({ jobId });
+    
+    if (!script) {
+      return res.status(404).json({ 
+        error: 'Script not found',
+        jobId: jobId
+      });
+    }
+
+    res.status(200).json({
+      jobId: script.jobId,
+      scriptId: script._id,
+      topic: script.topic,
+      script: script.outputScript,
+      status: script.status,
+      error: script.errorDetails?.message || null,
+      createdAt: script.createdAt,
+      updatedAt: script.updatedAt
+    });
+  } catch (err) {
+    console.error('Error getting script result:', err);
+    res.status(500).json({ 
+      error: 'Failed to retrieve script result',
+      details: err.message
+    });
   }
 };
 

@@ -3,22 +3,23 @@ POST http://localhost:3005/api/scripts/generate
 Content-Type: application/json
 
 {
-  "userId": "6616e1b2ac9fb8d3bfc8a4c1",
-  "topic": "test script",
-  "audience": "teenager",
-  "style": "storytelling",
-  "language": "en",
-  "length":"long",
-  "sources": [
-    {
-      "title": "test script1",
-      "content": "Cây chuối là một hình ảnh quen thuộc ở khắp các vùng quê Việt Nam. Không chỉ để lấy quả, chuối còn là loại cây “đa năng” hiếm có. Thân chuối dùng gói bánh, lá chuối gói xôi, còn củ chuối có thể nấu ăn cho heo gà. Trái chuối thì khỏi nói – ngọt, dễ ăn, lại giàu năng lượng. Thú vị hơn, cây chuối chỉ ra trái đúng một lần rồi chết. Nhưng đừng lo, nó đã để lại những cây con sẵn sàng mọc lên tiếp nối."
-    },
-    {
-      "title": "test script2",
-      "content": "Bạn có nhớ hình ảnh bụi chuối sau vườn nhà bà không? Cây chuối mọc thẳng, xanh mát, và luôn cho ta cảm giác bình yên. Không chỉ có trái ngon, cây chuối còn là người bạn thầm lặng trong bữa ăn gia đình – từ món bánh chưng gói bằng lá, đến miếng chuối khô ngọt lịm. Dù sống ngắn ngủi, mỗi cây chuối luôn để lại mầm non. Như cách thiên nhiên dạy ta về sự tiếp nối và sẻ chia."
-    }
-  ]
+    "job_id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "6616e1b2ac9fb8d3bfc8a4c1",
+    "topic": "dứa",
+    "audience": "teenager",
+    "style": "storytelling",
+    "language": "en",
+    "length": "long",
+    "sources": [
+        {
+            "title": "test script1",
+            "content": "Cây chuối là một hình ảnh quen thuộc ở khắp các vùng quê Việt Nam. Không chỉ để lấy quả, chuối còn là loại cây “đa năng” hiếm có. Thân chuối dùng gói bánh, lá chuối gói xôi, còn củ chuối có thể nấu ăn cho heo gà. Trái chuối thì khỏi nói – ngọt, dễ ăn, lại giàu năng lượng. Thú vị hơn, cây chuối chỉ ra trái đúng một lần rồi chết. Nhưng đừng lo, nó đã để lại những cây con sẵn sàng mọc lên tiếp nối."
+        },
+        {
+            "title": "test script2",
+            "content": "Bạn có nhớ hình ảnh bụi chuối sau vườn nhà bà không? Cây chuối mọc thẳng, xanh mát, và luôn cho ta cảm giác bình yên. Không chỉ có trái ngon, cây chuối còn là người bạn thầm lặng trong bữa ăn gia đình – từ món bánh chưng gói bằng lá, đến miếng chuối khô ngọt lịm. Dù sống ngắn ngủi, mỗi cây chuối luôn để lại mầm non. Như cách thiên nhiên dạy ta về sự tiếp nối và sẻ chia."
+        }
+    ]
 }
 
 ### Get script by ID (Success case)

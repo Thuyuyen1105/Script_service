@@ -5,6 +5,7 @@ const { getIO, getSocketId } = require('../app');
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 const SCRIPT_QUEUE = 'script_generate_queue';
 const IMAGE_QUEUE = 'image_generate_queue';
+const VOICE_QUEUE = 'voice_generate_queue';
 
 function sendResultViaWebSocket(jobId, result) {
   try {
@@ -142,6 +143,7 @@ async function sendImageGenerationRequest(request) {
     channel.sendToQueue(IMAGE_QUEUE, message, { persistent: true });
     
     console.log(`Image generation request sent for job ${request.jobId}`);
+    console.log('image request',request);
     
     await channel.close();
     await connection.close();
@@ -151,8 +153,34 @@ async function sendImageGenerationRequest(request) {
   }
 }
 
+// Function to send voice generation request
+async function sendVoiceGenerationRequest(request) {
+  try {
+    if (!request || !request.job_id) {
+      throw new Error('Invalid request: missing job_id');
+    }
+
+    const connection = await amqp.connect(RABBITMQ_URL);
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(VOICE_QUEUE, { durable: true });
+    
+    const message = Buffer.from(JSON.stringify(request));
+    channel.sendToQueue(VOICE_QUEUE, message, { persistent: true });
+    
+    console.log(`Voice generation request sent for job ${request.job_id}`);
+    console.log('voice request',request);
+    await channel.close();
+    await connection.close();
+  } catch (error) {
+    console.error('Error sending voice generation request:', error);
+    throw error;
+  }
+}
+
 module.exports = { 
   sendMessage, 
   consumeMessages, 
-  sendImageGenerationRequest 
+  sendImageGenerationRequest,
+  sendVoiceGenerationRequest 
 };

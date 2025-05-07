@@ -1,7 +1,7 @@
 const Script = require('../models/Script');
 const SplitScript = require('../models/SplitScript');
 const { splitScript } = require('../services/geminiService');
-const { sendImageGenerationRequest } = require('../services/rabbitService');
+const { sendImageGenerationRequest, sendVoiceGenerationRequest } = require('../services/rabbitService');
 const { createScript: createScriptService } = require('../services/scriptService');
 
 exports.createScript = async (req, res) => {
@@ -119,6 +119,11 @@ exports.updateScript = async (req, res) => {
       userId,
       imageStyle = "anime", // Default style if not provided
       imageResolution = "1024x1024", // Default resolution if not provided
+
+      voiceStyle = "professional", // Default voice style
+      voiceGender = "female", // Default voice gender
+      voiceLanguage = "en-US", // Default voice language
+      
       jobId // Optional jobId for tracking
     } = req.body;
     
@@ -173,29 +178,55 @@ exports.updateScript = async (req, res) => {
     });
 
     // Send requests to image generation queue
-    const sendPromises = imageRequests.map(request => 
-
+    const sendImagePromises = imageRequests.map(request => 
       sendImageGenerationRequest(request).catch(error => {
         console.error(`Failed to send image request for segment ${request.order}:`, error);
         return null; // Continue with other requests even if one fails
       })
     );
 
-    await Promise.all(sendPromises);
+    await Promise.all(sendImagePromises);
 
-    // Filter out failed requests
-    const successfulRequests = imageRequests.filter((_, index) => sendPromises[index] !== null);
+    // Filter out failed image requests
+    const successfulImageRequests = imageRequests.filter((_, index) => sendImagePromises[index] !== null);
+
+    // Prepare and send voice generation request
+    console.log('Sending voice generation request...');
+    const voiceRequest = {
+      job_id: jobId || `voice_${Date.now()}`,
+      voice_styles: {
+        style: voiceStyle,
+        gender: voiceGender,
+        language: voiceLanguage
+      },
+      segments: savedSegments.map((segment, index) => ({
+        index: index,
+        text: segment.text
+      }))
+    };
+
+    try {
+      await sendVoiceGenerationRequest(voiceRequest);
+      console.log('Voice generation request sent successfully');
+    } catch (error) {
+      console.error('Failed to send voice generation request:', error);
+      // Continue with the response even if voice request fails
+    }
 
     res.status(200).json({
       message: 'Script updated and split successfully',
       scriptId: updatedScript._id,
       status: updatedScript.status,
       segments: savedSegments,
-      imageRequests: successfulRequests.map(req => ({
+      imageRequests: successfulImageRequests.map(req => ({
         jobId: req.jobId,
         splitScriptId: req.splitScriptId,
         order: req.order
-      }))
+      })),
+      voiceRequest: {
+        jobId: voiceRequest.job_id,
+        segmentsCount: voiceRequest.segments.length
+      }
     });
   } catch (err) {
     console.error('Error updating script:', err);

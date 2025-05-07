@@ -67,6 +67,7 @@ async function generateScript(topic, audience, style, sources, language, length)
     
     const response = await result.response;
     const text = response.text();
+    const scriptId= response.scriptId;
 
     if (!text) {
       console.error('Empty response received from Gemini API');
@@ -74,9 +75,10 @@ async function generateScript(topic, audience, style, sources, language, length)
     }
 
     console.log('Generated script successfully, length:', text.length);
+    console.log("script", text);
+
     // Format the response
     return {
-      scriptId: `script_${Date.now()}`,
       script: text,
       status: "generated"
     };

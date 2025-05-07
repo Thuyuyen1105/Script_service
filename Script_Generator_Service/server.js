@@ -6,8 +6,8 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const scriptRoutes = require('./src/routes/scriptRoutes');
 const { consumeMessages } = require('./src/services/rabbitService');
-const { setIO, setActiveConnections } = require('./src/app');
 
+// Initialize Express app
 const app = express();
 const httpServer = createServer(app);
 
@@ -22,9 +22,11 @@ const io = new Server(httpServer, {
 // Store active connections
 const activeConnections = new Map();
 
-// Set global variables
-setIO(io);
-setActiveConnections(activeConnections);
+// Export io and activeConnections for use in other modules
+module.exports = {
+  io,
+  activeConnections
+};
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -57,7 +59,11 @@ app.use(express.json());
 app.use('/api/scripts', scriptRoutes);
 
 // Connect to MongoDB and start consuming messages
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+  // Remove deprecated options
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
   .then(() => {
     console.log('✅ MongoDB connected');
     consumeMessages().catch(err => {

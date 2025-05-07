@@ -1,8 +1,8 @@
 const Script = require('../models/Script');
 const SplitScript = require('../models/SplitScript');
-const { generateScript, splitScript } = require('../services/geminiService');
-
-
+const { splitScript } = require('../services/geminiService');
+const { sendImageGenerationRequest } = require('../services/rabbitService');
+const { createScript: createScriptService } = require('../services/scriptService');
 
 exports.createScript = async (req, res) => {
   console.log('=== Script Controller: createScript called ===');
@@ -40,29 +40,18 @@ exports.createScript = async (req, res) => {
       return res.status(400).json({ error: 'Invalid length value. Must be one of: veryshort, short, medium, long' });
     }
 
-    // Generate script using Gemini service
-    console.log('Calling generateScript service...');
-    const generatedContent = await generateScript(topic, audience, style, sources, language, length);
-    console.log('Script generated successfully');
-
-    // Create script record in database using the model method
-    console.log('Creating script record in database...');
-    const script = await Script.createScript({
+    // Create script using service
+    const result = await createScriptService({
       userId,
       topic,
-      targetAudience: audience,
+      audience,
       style,
-      outputScript: generatedContent.script,
-      status: generatedContent.status
+      sources,
+      language,
+      length
     });
-    console.log('Script record created:', { scriptId: script._id, status: script.status });
 
-    res.status(201).json({
-      scriptId: script._id,
-      topic: script.topic,
-      script: script.outputScript,
-      status: script.status
-    });
+    res.status(201).json(result);
   } catch (err) {
     console.error('Script Generation Error:', {
       error: err.message,
@@ -70,49 +59,11 @@ exports.createScript = async (req, res) => {
       requestBody: req.body
     });
     
-    // Create a failed script record with detailed error message
-    try {
-      const { userId, topic, audience, style, sources, language, length } = req.body;
-      const errorMessage = err.message || 'Unknown error occurred';
-      console.log('Creating failed script record...');
-      const script = await Script.createScript({
-        userId,
-        topic,
-        targetAudience: audience,
-        style,
-        outputScript: `Script generation failed: ${errorMessage}`,
-        status: "failed",
-        errorDetails: {
-          message: errorMessage,
-          timestamp: new Date().toISOString()
-        }
-      });
-      
-      console.log('Failed script record created:', { 
-        scriptId: script._id, 
-        status: script.status,
-        error: errorMessage 
-      });
-
-      res.status(201).json({
-        scriptId: script._id,
-        topic: script.topic,
-        script: script.outputScript,
-        status: script.status,
-        error: errorMessage
-      });
-    } catch (createErr) {
-      console.error('Error creating failed script record:', {
-        error: createErr.message,
-        stack: createErr.stack,
-        originalError: err.message
-      });
-      res.status(500).json({ 
-        error: 'Script generation failed',
-        details: err.message,
-        timestamp: new Date().toISOString()
-      });
-    }
+    res.status(500).json({ 
+      error: 'Script generation failed',
+      details: err.message,
+      timestamp: new Date().toISOString()
+    });
   }
 };
 
@@ -163,7 +114,13 @@ exports.getUserScripts = async (req, res) => {
 exports.updateScript = async (req, res) => {
   try {
     const { scriptId } = req.params;
-    const { script } = req.body;
+    const { 
+      script, 
+      userId,
+      imageStyle = "anime", // Default style if not provided
+      imageResolution = "1024x1024", // Default resolution if not provided
+      jobId // Optional jobId for tracking
+    } = req.body;
     
     // Validate scriptId format
     if (!scriptId || !/^[0-9a-fA-F]{24}$/.test(scriptId)) {
@@ -174,19 +131,70 @@ exports.updateScript = async (req, res) => {
       return res.status(400).json({ error: 'Missing required field: script' });
     }
     
-    // Tạo đối tượng cập nhật
+    // Update script
     const updateData = {
       outputScript: script,
       status: 'generated'
     };
     
-    
-    // Update script
     const updatedScript = await Script.updateScript(scriptId, updateData);
     
+    // Generate split scripts
+    console.log('Generating split scripts...');
+    const segments = await splitScript(script);
+    
+    // Delete existing split scripts
+    await SplitScript.deleteMany({ scriptId });
+    
+    // Save new split scripts
+    const savedSegments = await SplitScript.insertSegments(scriptId, segments);
+    
+    // Send image generation requests for each segment
+    console.log('Sending image generation requests...');
+    const imageRequests = savedSegments.map((segment, index) => {
+      // Generate a unique jobId for each image request
+      const imageJobId = jobId ? `${jobId}_img_${index}` : `img_${Date.now()}_${index}`;
+      
+      return {
+        jobId: imageJobId,
+        userId: userId,
+        prompt: segment.imagePrompt,
+        style: imageStyle,
+        resolution: imageResolution,
+        scriptId: scriptId,
+        splitScriptId: segment._id,
+        order: index.toString(),
+        metadata: {
+          segmentText: segment.text,
+          originalJobId: jobId,
+          timestamp: new Date().toISOString()
+        }
+      };
+    });
+
+    // Send requests to image generation queue
+    const sendPromises = imageRequests.map(request => 
+      sendImageGenerationRequest(request).catch(error => {
+        console.error(`Failed to send image request for segment ${request.order}:`, error);
+        return null; // Continue with other requests even if one fails
+      })
+    );
+
+    await Promise.all(sendPromises);
+
+    // Filter out failed requests
+    const successfulRequests = imageRequests.filter((_, index) => sendPromises[index] !== null);
+
     res.status(200).json({
-      message: 'Kịch bản đã được cập nhật thành công.',
-      status: updatedScript.status
+      message: 'Script updated and split successfully',
+      scriptId: updatedScript._id,
+      status: updatedScript.status,
+      segments: savedSegments,
+      imageRequests: successfulRequests.map(req => ({
+        jobId: req.jobId,
+        splitScriptId: req.splitScriptId,
+        order: req.order
+      }))
     });
   } catch (err) {
     console.error('Error updating script:', err);
@@ -195,7 +203,10 @@ exports.updateScript = async (req, res) => {
         error: `Không tìm thấy kịch bản với mã ${req.params.scriptId}` 
       });
     }
-    res.status(500).json({ error: 'Failed to update script' });
+    res.status(500).json({ 
+      error: 'Failed to update script',
+      details: err.message 
+    });
   }
 };
 

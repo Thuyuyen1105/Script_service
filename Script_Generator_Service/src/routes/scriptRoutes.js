@@ -12,8 +12,17 @@ router.post('/:scriptId/split', scriptController.splitScriptById);
 // Finalize a script
 router.post('/:scriptId/finalize', scriptController.finalizeScript);
 
-// Edit a script
-router.put('/:scriptId', scriptController.updateScript);
+// Update script and generate split scripts
+router.put('/:scriptId', (req, res, next) => {
+  // Validate required fields
+  const { script, userId } = req.body;
+  if (!script || !userId) {
+    return res.status(400).json({ 
+      error: 'Missing required fields: script and userId are required' 
+    });
+  }
+  next();
+}, scriptController.updateScript);
 
 // Get a script by ID
 router.get('/:scriptId', scriptController.getScriptById);

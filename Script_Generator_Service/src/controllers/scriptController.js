@@ -120,8 +120,8 @@ exports.updateScript = async (req, res) => {
       imageStyle = "anime", // Default style if not provided
       imageResolution = "1024x1024", // Default resolution if not provided
 
-      voiceStyle = "professional", // Default voice style
-      voiceGender = "female", // Default voice gender
+      voiceStyle = "Professional", // Default voice style
+      voiceGender = "FEMALE", // Default voice gender
       voiceLanguage = "en-US", // Default voice language
       
       jobId // Optional jobId for tracking

@@ -23,8 +23,8 @@ const ScriptSchema = new Schema({
   },
   language: {
     type: String,
-    enum: ['en', 'vi'],
-    default: 'en'
+    enum: ['en-US', 'vi-VN'],
+    default: 'en-US'
   },
   status: {
     type: String,

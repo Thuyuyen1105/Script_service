@@ -156,14 +156,16 @@ exports.updateScript = async (req, res) => {
     
     // Send image generation requests for each segment
     console.log('Sending image generation requests...');
+    const totalSegments = savedSegments.length; // Tính tổng số lượng segments
+
     const imageRequests = savedSegments.map((segment, index) => {
       // Generate a unique jobId for each image request
-      const imageJobId = jobId ? `${jobId}_img_${index}` : `img_${Date.now()}_${index}`;
       
       return {
-        jobId: imageJobId,
+        jobId: jobId,
         userId: userId,
         prompt: segment.imagePrompt,
+
         style: imageStyle,
         resolution: imageResolution,
         scriptId: scriptId,
@@ -171,8 +173,9 @@ exports.updateScript = async (req, res) => {
         order: index.toString(),
         metadata: {
           segmentText: segment.text,
-          originalJobId: jobId,
-          timestamp: new Date().toISOString()
+          totalImage: totalSegments // Tổng số lượng segments
+
+
         }
       };
     });

@@ -102,7 +102,7 @@ function constructPrompt(topic, audience, style, sources, language, length) {
   const audienceGuide = getAudienceGuide(audience);
   const styleGuide = getStyleGuide(style);
   let lang = language;
-  if (lang == "vi") {
+  if (lang == "vi-VN") {
     lang = "Vietnamese";
   } else {
     lang = "English";

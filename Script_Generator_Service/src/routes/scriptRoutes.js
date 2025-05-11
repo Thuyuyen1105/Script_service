@@ -39,4 +39,6 @@ router.delete('/:scriptId', scriptController.deleteScript);
 // Get split scripts by script ID
 router.get('/:scriptId/split', splitScriptController.getSplitScriptsByScriptId);
 
+router.get('/:scriptId/title-description', scriptController.getScriptTitleAndDescription);
+
 module.exports = router;

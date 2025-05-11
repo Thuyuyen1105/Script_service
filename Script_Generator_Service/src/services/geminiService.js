@@ -187,11 +187,11 @@ async function splitScript(script) {
 You are an AI assistant that processes short educational scripts and prepares them for image generation using Stable Diffusion.
 
 Your task is:
-1. Split the following script into short, meaningful segments (2-4 sentences each).
+1. Split the following script into short, meaningful segments (1-3 sentences each).
 2. For each segment, create a descriptive and imaginative prompt suitable for generating an illustration or image using a text-to-image model like Stable Diffusion.
 3. Make the prompt visually rich, context-aware, and free of abstract or non-visual words.
 4. Use present-tense descriptions and avoid referencing the script or narration directly.
-5. Create as least segments as possible.
+
 
 
 Script:

@@ -114,7 +114,7 @@ function constructPromptWithTitle(topic, audience, style, sources, language, len
   const languageMap = {
     vi: "Vietnamese",
     en: "English",
-    fs: "French",
+    fr: "French",
     es: "Spanish"
   };
 

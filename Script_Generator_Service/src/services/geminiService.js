@@ -110,12 +110,16 @@ function constructPromptWithTitle(topic, audience, style, sources, language, len
   // Construct the prompt with specific instructions based on audience and style
   const audienceGuide = getAudienceGuide(audience);
   const styleGuide = getStyleGuide(style);
-  let lang = language;
-  if (lang == "vi") {
-    lang = "Vietnamese";
-  } else {
-    lang = "English";
-  }
+  // Map language codes to full language names
+  const languageMap = {
+    vi: "Vietnamese",
+    en: "English",
+    fs: "French",
+    es: "Spanish"
+  };
+
+  // Map the language code to its full name
+  let lang = languageMap[language] || "English"; // Default to English if the language code is not recognized
   let scriptLength;
   switch (length) {
     case 'veryshort':
@@ -128,7 +132,7 @@ function constructPromptWithTitle(topic, audience, style, sources, language, len
       scriptLength = 300; // Example: 600 words
       break;
     case 'long':
-      scriptLength =500 ; // Example: 1000 words
+      scriptLength =400 ; // Example: 1000 words
       break;
     default:
       throw new Error('Invalid length value');

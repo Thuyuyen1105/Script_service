@@ -51,7 +51,14 @@ exports.createScript = async (req, res) => {
       length
     });
 
-    res.status(201).json(result);
+    // Lưu title và description vào response
+    res.status(201).json({
+      scriptId: result.scriptId,
+      title: result.title,
+      description: result.description,
+      script: result.script,
+      status: result.status
+    });
   } catch (err) {
     console.error('Script Generation Error:', {
       error: err.message,
@@ -370,3 +377,32 @@ exports.getScriptResult = async (req, res) => {
 };
 
 
+exports.getScriptTitleAndDescription = async (req, res) => {
+  try {
+    const { scriptId } = req.params;
+
+    // Validate scriptId format
+    if (!scriptId || !/^[0-9a-fA-F]{24}$/.test(scriptId)) {
+      return res.status(400).json({ error: 'Invalid script ID format' });
+    }
+
+    // Get script from database
+    const script = await Script.getScriptById(scriptId);
+
+    if (!script) {
+      return res.status(404).json({ error: 'Script not found' });
+    }
+
+    // Extract title and description
+    const { title, description } = script;
+
+    res.status(200).json({
+      scriptId,
+      title,
+      description
+    });
+  } catch (err) {
+    console.error('Error getting script title and description:', err);
+    res.status(500).json({ error: 'Failed to retrieve script title and description' });
+  }
+};

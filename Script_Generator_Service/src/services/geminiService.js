@@ -57,29 +57,38 @@ async function generateScript(topic, audience, style, sources, language, length)
 
     // Construct the prompt based on the inputs
     console.log('Constructing prompt...');
-    const prompt = constructPrompt(topic, audience, style, sources, language, length);
+    const prompt = constructPromptWithTitle(topic, audience, style, sources, language, length);
     console.log('Prompt constructed successfully');
     
     // Generate content using Gemini
     console.log('Calling Gemini API...');
     const result = await model.generateContent(prompt);
     console.log('Received response from Gemini API');
-    
     const response = await result.response;
-    const text = response.text();
-    const scriptId= response.scriptId;
-
+    let text = response.text();
+    
+    // Clean up code block markers if present
+    text = text.trim();
+    if (text.startsWith('```')) {
+      text = text.replace(/```json|```/g, '').trim();
+    }
+    
     if (!text) {
       console.error('Empty response received from Gemini API');
       throw new Error('Empty response from Gemini API');
     }
-
-    console.log('Generated script successfully, length:', text.length);
-    console.log("script", text);
+    
+    console.log('Cleaned response text:', text);
+    
+    // Parse the response to extract title, script, and description
+    const { title, script, description } = JSON.parse(text);
 
     // Format the response
     return {
-      script: text,
+      title,
+      script,
+      title,
+      description,
       status: "generated"
     };
   } catch (error) {
@@ -92,7 +101,7 @@ async function generateScript(topic, audience, style, sources, language, length)
   }
 }
 
-function constructPrompt(topic, audience, style, sources, language, length) {
+function constructPromptWithTitle(topic, audience, style, sources, language, length) {
   // Combine sources into a coherent text
   const sourcesText = sources.map(source => 
     `From "${source.title}": ${source.content}`
@@ -101,22 +110,26 @@ function constructPrompt(topic, audience, style, sources, language, length) {
   // Construct the prompt with specific instructions based on audience and style
   const audienceGuide = getAudienceGuide(audience);
   const styleGuide = getStyleGuide(style);
-  let lang = language;
-  if (lang == "vi-VN") {
-    lang = "Vietnamese";
-  } else {
-    lang = "English";
-  }
+  // Map language codes to full language names
+  const languageMap = {
+    vi: "Vietnamese",
+    en: "English",
+    fr: "French",
+    es: "Spanish"
+  };
+
+  // Map the language code to its full name
+  let lang = languageMap[language] || "English"; // Default to English if the language code is not recognized
   let scriptLength;
   switch (length) {
     case 'veryshort':
       scriptLength = 100; // Example: 100 words
       break;
     case 'short':
-      scriptLength = 150; // Example: 300 words
+      scriptLength = 200; // Example: 300 words
       break;
     case 'medium':
-      scriptLength = 250; // Example: 600 words
+      scriptLength = 300; // Example: 600 words
       break;
     case 'long':
       scriptLength =400 ; // Example: 1000 words
@@ -136,14 +149,20 @@ Based on these scientific sources:
 ${sourcesText}
 
 Instructions:
-- Keep the script about ${scriptLength} words.
-- Make it sound natural and smooth for a text-to-speech system.
-- Use simple sentence structures that are easy to follow when spoken.
-- Avoid special characters or formatting (e.g., bullet points, emojis, etc).
-- Focus on clarity and flow.
+1. Generate a title for the script that is concise and engaging.
+2. Write a script of about ${scriptLength} words that is natural and smooth for a text-to-speech system.
+3. Include a short description (1-2 sentences) summarizing the script, suitable for video illustration.
+4. Use simple sentence structures that are easy to follow when spoken.
+5. Avoid special characters or formatting (e.g., bullet points, emojis, etc).
+6. Focus on clarity and flow.
 
-Only return the final script. Do not include explanations.
-`;
+Return the result as a JSON object with the following format:
+{
+  "title": "<the title of the script>",
+  "script": "<the full script>",
+  "description": "<a short description for video illustration>"
+}
+`
 }
 
 function getAudienceGuide(audience) {
@@ -173,10 +192,12 @@ You are an AI assistant that processes short educational scripts and prepares th
 
 Your task is:
 1. Split the following script into short, meaningful segments (2-4 sentences each).
+2. Ensure that every sentence or phrase from the original script is included in one of the segments.
 2. For each segment, create a descriptive and imaginative prompt suitable for generating an illustration or image using a text-to-image model like Stable Diffusion.
 3. Make the prompt visually rich, context-aware, and free of abstract or non-visual words.
 4. Use present-tense descriptions and avoid referencing the script or narration directly.
-5. Create as least segments as possible.
+
+
 
 
 Script:

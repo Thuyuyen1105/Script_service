@@ -77,6 +77,7 @@ async function consumeMessages() {
             messageContent = JSON.parse(msg.content.toString());
             console.log(`Received message: ${JSON.stringify(messageContent)}`);
 
+
             // Extract data from message
             const { job_id, userId, crawl_data, audience, style, language, length } = messageContent;
 

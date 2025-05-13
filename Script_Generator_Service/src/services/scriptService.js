@@ -14,6 +14,8 @@ async function createScript(scriptData) {
       topic,
       targetAudience: audience,
       style,
+      description: generatedContent.description,
+      title: generatedContent.title,
       outputScript: generatedContent.script,
       status: generatedContent.status
     });
@@ -21,6 +23,8 @@ async function createScript(scriptData) {
     return {
       scriptId: script._id,
       topic: script.topic,
+      title: script.title,
+      description: script.description,
       script: script.outputScript,
       status: script.status
     };
@@ -32,6 +36,8 @@ async function createScript(scriptData) {
       topic: scriptData.topic,
       targetAudience: scriptData.audience,
       style: scriptData.style,
+      description: "error",
+      title: "error",
       outputScript: `Script generation failed: ${errorMessage}`,
       status: "failed",
       errorDetails: {
@@ -43,6 +49,8 @@ async function createScript(scriptData) {
     return {
       scriptId: script._id,
       topic: script.topic,
+      script: script.outputScript,
+      description: script.description,
       script: script.outputScript,
       status: script.status,
       error: errorMessage

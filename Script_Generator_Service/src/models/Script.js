@@ -31,6 +31,14 @@ const ScriptSchema = new Schema({
     enum: ['generated', 'finalized', 'failed'],
     default: 'generated'
   },
+  title: {
+    type: String, // Thêm trường title
+    required: true
+  },
+  description: {
+    type: String, // Thêm trường description
+    required: true
+  },
   outputScript: String,
   createdAt: {
     type: Date,

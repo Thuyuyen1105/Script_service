@@ -22,15 +22,46 @@ const io = new Server(httpServer, {
 
 // Set WebSocket IO instance
 setIO(io);
-
+  
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
+  
+  // Gửi acknowledgment khi client kết nối thành công
+  socket.emit('connection_ack', {
+    status: 'success',
+    message: 'Connected to server successfully',
+    socketId: socket.id,
+    timestamp: new Date().toISOString()
+  });
 
   // Handle client registration with jobId
-  socket.on('register', (jobId) => {
-    console.log(`Client ${socket.id} registered for job ${jobId}`);
-    addConnection(jobId, socket.id);
+  socket.on('register', (jobId, callback) => {
+    try {
+      console.log(`Client ${socket.id} registered for job ${jobId}`);
+      addConnection(jobId, socket.id);
+      
+      // Gửi acknowledgment cho việc đăng ký job
+      if (typeof callback === 'function') {
+        callback({
+          status: 'success',
+          message: `Successfully registered for job ${jobId}`,
+          jobId: jobId,
+          socketId: socket.id,
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error(`Error registering job ${jobId} for socket ${socket.id}:`, error);
+      if (typeof callback === 'function') {
+        callback({
+          status: 'error',
+          message: `Failed to register for job ${jobId}`,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
   });
 
   // Handle disconnection

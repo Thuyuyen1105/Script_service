@@ -9,7 +9,7 @@ const ScriptSchema = new Schema({
   },
   jobId: {
     type: String,
-    required: true
+    required: false
   },
   topic: {
     type: String,

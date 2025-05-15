@@ -7,6 +7,10 @@ const ScriptSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
+  jobId: {
+    type: String,
+    required: true
+  },
   topic: {
     type: String,
     required: true

@@ -100,6 +100,7 @@ async function consumeMessages() {
             // Create script using service
             const result = await createScript({
               userId,
+              jobId: job_id,
               topic: input_user || crawl_data[0]?.title,
               audience,
               style,

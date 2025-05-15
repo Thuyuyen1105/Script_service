@@ -3,7 +3,7 @@ const { generateScript } = require('./geminiService');
 
 async function createScript(scriptData) {
   try {
-    const { userId, topic, audience, style, sources, language, length } = scriptData;
+    const { userId, jobId, topic, audience, style, sources, language, length } = scriptData;
     
     // Generate script using Gemini service
     const generatedContent = await generateScript(topic, audience, style, sources, language, length);
@@ -11,6 +11,7 @@ async function createScript(scriptData) {
     // Create script record in database
     const script = await Script.createScript({
       userId,
+      jobId,
       topic,
       targetAudience: audience,
       style,

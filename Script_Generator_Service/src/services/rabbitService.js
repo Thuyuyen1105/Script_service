@@ -1,31 +1,63 @@
 const amqp = require("amqplib");
 const { createScript } = require("./scriptService");
 const { getIO, getSocketId } = require("../app");
+const Script = require("../models/Script");
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost";
 const SCRIPT_QUEUE = "script_generate_queue";
 const IMAGE_QUEUE = "image_generate_queue";
 const VOICE_QUEUE = "voice_generate_queue";
 
-function sendResultViaWebSocket(jobId, result) {
+async function sendResultViaWebSocket(jobId, result, retryCount = 0) {
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1000; // 1 second
+
   try {
+    console.log(`[WebSocket Debug] Attempting to send result for job ${jobId} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`);
+    console.log(`[WebSocket Debug] Result data:`, JSON.stringify(result, null, 2));
+
     if (!jobId) {
-      console.error("No jobId provided for WebSocket result");
+      console.error("[WebSocket Debug] No jobId provided for WebSocket result");
       return;
     }
 
     if (!result || typeof result !== "object") {
-      console.error(`Invalid result for job ${jobId}:`, result);
+      console.error(`[WebSocket Debug] Invalid result for job ${jobId}:`, result);
       return;
+    }
+
+    // Lưu kết quả vào database trước khi gửi qua WebSocket
+    try {
+      await Script.findOneAndUpdate(
+        { jobId },
+        { 
+          $set: {
+            outputScript: result.data?.script || null,
+            status: result.status === 201 ? 'completed' : 'error',
+            errorDetails: result.error ? { message: result.error } : null,
+            lastUpdated: new Date()
+          }
+        },
+        { upsert: true, new: true }
+      );
+      console.log(`[WebSocket Debug] Result saved to database for job ${jobId}`);
+    } catch (dbError) {
+      console.error(`[WebSocket Debug] Error saving result to database for job ${jobId}:`, dbError);
     }
 
     const io = getIO();
     if (!io) {
-      console.error("WebSocket not initialized");
+      console.error("[WebSocket Debug] WebSocket not initialized - io is null");
+      if (retryCount < MAX_RETRIES) {
+        console.log(`[WebSocket Debug] Retrying in ${RETRY_DELAY}ms...`);
+        setTimeout(() => sendResultViaWebSocket(jobId, result, retryCount + 1), RETRY_DELAY);
+      }
       return;
     }
 
     const socketId = getSocketId(jobId);
+    console.log(`[WebSocket Debug] Socket ID for job ${jobId}:`, socketId);
+    
     if (socketId) {
       io.to(socketId).emit("scriptResult", {
         job_id: jobId,
@@ -33,13 +65,23 @@ function sendResultViaWebSocket(jobId, result) {
         timestamp: new Date().toISOString(),
       });
       console.log(
-        `Result sent via WebSocket to client ${socketId} for job ${jobId}`
+        `[WebSocket Debug] Successfully sent result via WebSocket to client ${socketId} for job ${jobId}`
       );
     } else {
-      console.log(`No active connection found for job ${jobId}`);
+      console.log(`[WebSocket Debug] No active connection found for job ${jobId}`);
+      if (retryCount < MAX_RETRIES) {
+        console.log(`[WebSocket Debug] Retrying in ${RETRY_DELAY}ms...`);
+        setTimeout(() => sendResultViaWebSocket(jobId, result, retryCount + 1), RETRY_DELAY);
+      }
     }
   } catch (error) {
-    console.error("Error sending result via WebSocket:", error);
+    console.error("[WebSocket Debug] Error sending result via WebSocket:", error);
+    console.error("[WebSocket Debug] Error stack:", error.stack);
+    
+    if (retryCount < MAX_RETRIES) {
+      console.log(`[WebSocket Debug] Retrying in ${RETRY_DELAY}ms...`);
+      setTimeout(() => sendResultViaWebSocket(jobId, result, retryCount + 1), RETRY_DELAY);
+    }
   }
 }
 

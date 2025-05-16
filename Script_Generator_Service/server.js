@@ -25,7 +25,7 @@ setIO(io);
   
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+  console.log('[WebSocket Debug] Client connected:', socket.id);
   
   // Gửi acknowledgment khi client kết nối thành công
   socket.emit('connection_ack', {
@@ -35,10 +35,20 @@ io.on('connection', (socket) => {
     timestamp: new Date().toISOString()
   });
 
+  // Xử lý heartbeat từ client
+  socket.on('heartbeat_ack', (data) => {
+    console.log(`[WebSocket Debug] Received heartbeat acknowledgment from socket ${socket.id}:`, data);
+  });
+
   // Handle client registration with jobId
   socket.on('register', (jobId, callback) => {
     try {
-      console.log(`Client ${socket.id} registered for job ${jobId}`);
+      console.log(`[WebSocket Debug] Client ${socket.id} attempting to register for job ${jobId}`);
+      
+      if (!jobId) {
+        throw new Error('Job ID is required');
+      }
+
       addConnection(jobId, socket.id);
       
       // Gửi acknowledgment cho việc đăng ký job
@@ -51,8 +61,14 @@ io.on('connection', (socket) => {
           timestamp: new Date().toISOString()
         });
       }
+
+      // Gửi heartbeat ngay sau khi đăng ký thành công
+      socket.emit('heartbeat', { 
+        timestamp: Date.now(),
+        message: 'Initial heartbeat after registration'
+      });
     } catch (error) {
-      console.error(`Error registering job ${jobId} for socket ${socket.id}:`, error);
+      console.error(`[WebSocket Debug] Error registering job ${jobId} for socket ${socket.id}:`, error);
       if (typeof callback === 'function') {
         callback({
           status: 'error',
@@ -64,17 +80,34 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-    // Remove from active connections
-    const activeConnections = getActiveConnections();
-    for (const [jobId, socketId] of activeConnections.entries()) {
-      if (socketId === socket.id) {
-        removeConnection(jobId);
-        break;
-      }
+  // Handle reconnection
+  socket.on('reconnect_attempt', (jobId) => {
+    console.log(`[WebSocket Debug] Client ${socket.id} attempting to reconnect for job ${jobId}`);
+    if (jobId) {
+      addConnection(jobId, socket.id);
     }
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', (reason) => {
+    console.log(`[WebSocket Debug] Client disconnected: ${socket.id}, reason: ${reason}`);
+    
+    // Lấy jobId từ socket
+    const jobId = getJobId(socket.id);
+    if (jobId) {
+      console.log(`[WebSocket Debug] Removing connection for job ${jobId} due to disconnect`);
+      removeConnection(jobId);
+    }
+
+    // Nếu là disconnect tạm thời, thông báo cho client
+    if (reason === 'transport close' || reason === 'ping timeout') {
+      console.log(`[WebSocket Debug] Temporary disconnect detected for socket ${socket.id}, will attempt to reconnect`);
+    }
+  });
+
+  // Handle errors
+  socket.on('error', (error) => {
+    console.error(`[WebSocket Debug] Socket error for ${socket.id}:`, error);
   });
 });
 
